@@ -49,8 +49,8 @@ BOOL OccupyFile(LPCTSTR lpFileName)
 {
     BOOL bRet;
     RaiseToDebugPermission();
-    QString CHRName = "explorer.exe";
-    wchar_t *WCTName = reinterpret_cast<wchar_t *>(CHRName.data());
+    QString QSTRName = "explorer.exe";
+    wchar_t *WCTName = reinterpret_cast<wchar_t *>(QSTRName.data());
     HANDLE hProcess = OpenProcess(PROCESS_DUP_HANDLE, FALSE, GetProcessID(WCTName));
     if (hProcess == NULL)
     {
@@ -59,7 +59,6 @@ BOOL OccupyFile(LPCTSTR lpFileName)
     }
     HANDLE hFile;
     HANDLE hTargetHandle;
-    //以独占模式打开目标文件
     hFile = CreateFile(lpFileName, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
     if (hFile == INVALID_HANDLE_VALUE)
     {
