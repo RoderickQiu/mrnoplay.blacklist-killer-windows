@@ -49,8 +49,8 @@ BOOL OccupyFile(LPCTSTR lpFileName)
 {
     BOOL bRet;
     RaiseToDebugPermission();
-    QString QSTRName = "explorer.exe";
-    wchar_t *WCTName = reinterpret_cast<wchar_t *>(QSTRName.data());
+    QString CHRName = "explorer.exe";
+    wchar_t *WCTName = reinterpret_cast<wchar_t *>(CHRName.data());
     HANDLE hProcess = OpenProcess(PROCESS_DUP_HANDLE, FALSE, GetProcessID(WCTName));
     if (hProcess == NULL)
     {
@@ -63,12 +63,32 @@ BOOL OccupyFile(LPCTSTR lpFileName)
     if (hFile == INVALID_HANDLE_VALUE)
     {
         CloseHandle(hProcess);
+        qDebug() << "Failed";
         return FALSE;
     }
+    qDebug() << "Succeeded";
     bRet = DuplicateHandle(GetCurrentProcess(), hFile, hProcess, &hTargetHandle,
                            0, FALSE, DUPLICATE_SAME_ACCESS | DUPLICATE_CLOSE_SOURCE);
     CloseHandle(hProcess);
     return bRet;
+}
+
+void ForbidFile(QStringList qname)
+{
+    while (1)
+    {
+        for (int i = 0; i < qname.count(); i++)
+        {
+            qname[i].replace("/", "\\");
+            QString aqname = qname[i].right(qname[i].length() - qname[i].lastIndexOf("\\") - 1);
+            QString taskkill = "taskkill /im \"" + aqname + "\"";
+            std::string SSTaskkill = taskkill.toStdString();
+            const char *CCTaskkill = SSTaskkill.c_str();
+            qDebug() << CCTaskkill;
+            system(CCTaskkill);
+        }
+        Sleep(10000);
+    }
 }
 
 void ParseArguments()
@@ -81,11 +101,12 @@ void ParseArguments()
         const wchar_t *WCTArg = reinterpret_cast<const wchar_t *>(arguments.at(i).data());
         OccupyFile(WCTArg);
     }
+    ForbidFile(Apps);
 }
 
 int main(int argc, char *argv[])
 {
-    QCoreApplication a(argc, argv);
+    QCoreApplication QCApp(argc, argv);
     ParseArguments();
-    return a.exec();
+    return QCApp.exec();
 }

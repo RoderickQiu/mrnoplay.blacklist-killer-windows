@@ -53,3 +53,5 @@ compile_commands.json
 
 dist/
 release/
+
+.DS_Store
